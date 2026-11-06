@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<!--
+  ============================================================================
+  NV Atlas — Nominals to Verbs
+  Single-file introduction page for the NV Atlas project.
+  ----------------------------------------------------------------------------
+  Contents:
+    <style>          Design tokens, layout, and all component styles
+    header.hero      Title, bilingual tagline, and headline stats
+    #about           What the project is (card grid)
+    #how             "From noun to verb" pipeline
+    #samples         A few real rows from NVAtlas-AI-Agent.csv
+    #data            The CSV schema
+    section.cta      GitHub call-to-action
+    footer           Footer note
+  ----------------------------------------------------------------------------
+  No external dependencies: open this file directly in any browser.
+  ============================================================================
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NV Atlas — Nominals to Verbs</title>
+<meta name="description" content="NV Atlas is a bilingual English–Chinese dataset that maps English nominals to their natural verb counterparts.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
+<!-- ═══════════════════════════════════════════════════════════════════════
+     STYLES — kept inline so the page stays one portable file.
+     Design tokens live in :root; component rules follow page order.
+     ═══════════════════════════════════════════════════════════════════════ -->
+<style>
+  /* Design tokens — change these to re-theme the whole page. */
+  :root {
+    --bg: #0f172a;
+    --bg-soft: #1e293b;
+    --card: #ffffff;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --accent: #6366f1;
+    --accent-soft: #eef2ff;
+    --gold: #f59e0b;
+    --radius: 16px;
+  }
+  /* Reset + page base */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+    color: var(--ink);
+    line-height: 1.6;
+    background: #f8fafc;
+  }
+  /* Hero — dark gradient header with title, tagline, and stats */
+  .hero {
+    background:
+      radial-gradient(1200px 600px at 80% -10%, rgba(99,102,241,.35), transparent 60%),
+      radial-gradient(900px 500px at 10% 10%, rgba(245,158,11,.18), transparent 55%),
+      linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #312e81 100%);
+    color: #fff;
+    padding: 96px 24px 80px;
+    text-align: center;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: .85rem;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    backdrop-filter: blur(4px);
+  }
+  .hero h1 {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+  }
+  .hero h1 span { color: #a5b4fc; }
+  .hero .sub {
+    max-width: 640px;
+    margin: 20px auto 0;
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    color: #c7d2fe;
+  }
+  .hero .zh-sub { margin-top: 8px; font-size: 1rem; color: #e2e8f0; letter-spacing: .05em; }
+  .stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin: 44px auto 0;
+    max-width: 760px;
+  }
+  .stat {
+    background: rgba(255,255,255,.08);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 14px;
+    padding: 18px 28px;
+    min-width: 150px;
+    backdrop-filter: blur(4px);
+  }
+  .stat b { display: block; font-size: 1.9rem; color: #fcd34d; }
+  .stat span { font-size: .85rem; color: #cbd5e1; }
+
+  /* Content sections + shared typography */
+  section { max-width: 960px; margin: 0 auto; padding: 64px 24px; }
+  .eyebrow { color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: .1em; font-size: .8rem; margin-bottom: 8px; }
+  h2 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 800; letter-spacing: -.01em; margin-bottom: 16px; }
+  section p.lead { color: var(--muted); max-width: 720px; margin-bottom: 32px; }
+
+  /* Responsive card grid — reused by About and Schema */
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .card {
+    background: var(--card);
+    border: 1px solid #e2e8f0;
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(15,23,42,.06);
+  }
+  .card .icon { font-size: 1.8rem; margin-bottom: 10px; }
+  .card h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .card p { color: var(--muted); font-size: .92rem; }
+
+  /* Pipeline — the four-step "noun to verb" flow */
+  .pipeline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .step {
+    flex: 1 1 160px;
+    background: var(--accent-soft);
+    border: 1px solid #e0e7ff;
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    font-size: .92rem;
+  }
+  .step b { display: block; color: var(--accent); font-size: 1.05rem; margin-bottom: 4px; }
+  .step small { color: var(--muted); }
+  .arrow { align-self: center; color: var(--gold); font-weight: 800; font-size: 1.3rem; padding: 0 4px; }
+
+  /* Sample data table */
+  .example { background: var(--card); border: 1px solid #e2e8f0; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 3px rgba(15,23,42,.06); }
+  .example table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+  .example th {
+    background: var(--bg-soft);
+    color: #e2e8f0;
+    text-align: left;
+    padding: 12px 16px;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .example td { padding: 14px 16px; border-top: 1px solid #eef2f7; vertical-align: top; }
+  .example tr:first-child td { border-top: none; }
+  .example .en { font-weight: 600; }
+  .example .zh { color: #334155; }
+  .example .nom { color: var(--accent); font-weight: 700; }
+  .example .verb { display: inline-block; background: var(--accent-soft); color: var(--accent); border-radius: 999px; padding: 2px 12px; font-weight: 700; }
+
+  /* Call-to-action panel */
+  .cta { text-align: center; background: linear-gradient(135deg, #eef2ff, #fef3c7); border: 1px solid #e0e7ff; border-radius: 20px; padding: 48px 28px; }
+  .cta h2 { margin-bottom: 8px; }
+  .cta p { color: var(--muted); margin-bottom: 24px; }
+  .btn {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    padding: 14px 34px;
+    border-radius: 999px;
+    transition: transform .15s ease, box-shadow .15s ease;
+    box-shadow: 0 8px 20px rgba(99,102,241,.35);
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(99,102,241,.45); }
+
+  /* Footer + small-screen tweaks */
+  footer { text-align: center; padding: 40px 24px; color: var(--muted); font-size: .85rem; border-top: 1px solid #e2e8f0; }
+  @media (max-width: 640px) {
+    .arrow { display: none; }
+    .hero { padding: 64px 20px 56px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO — project name, bilingual tagline, and headline stats.
+     Counts come from NVAtlas-AI-Agent.csv (500 rows / 343 unique nominals). -->
+<header class="hero">
+  <div class="badge">Nominals → Verbs</div>
+  <h1>NV <span>Atlas</span> 🗺️</h1>
+  <p class="sub">A bilingual English–Chinese dataset that maps English nominals to their natural verb counterparts — because the best translation often changes the part of speech.</p>
+  <p class="zh-sub">把英文名词“翻译”动词 — 一词一句，中英对照</p>
+  <div class="stats">
+    <div class="stat"><b>500</b><span>sentence pairs</span></div>
+    <div class="stat"><b>343</b><span>unique nominals</span></div>
+    <div class="stat"><b>2</b><span>languages</span></div>
+    <div class="stat"><b>1</b><span>AI-ready dataset</span></div>
+  </div>
+</header>
+
+<!-- ABOUT — what the project is, summarised in four cards. -->
+<section id="about">
+  <div class="eyebrow">About</div>
+  <h2>What is NV Atlas?</h2>
+  <p class="lead">NV Atlas (“Nominals to Verbs”) is a curated collection of real English sentences paired with natural Chinese translations, where the target nominal has been identified and its verb form supplied. It is designed to help language learners, translators, and AI agents see <em>how English expresses actions through nouns</em> — and how Chinese naturally re-expresses them as verbs.</p>
+  <div class="cards">
+    <div class="card">
+      <div class="icon">🎯</div>
+      <h3>Nominal → Verb</h3>
+      <p>Each row flags the English nominal (e.g. <i>question</i>) and gives the verb that carries the meaning in Chinese (e.g. <i>问</i>).</p>
+    </div>
+    <div class="card">
+      <div class="icon">🌐</div>
+      <h3>Bilingual by design</h3>
+      <p>Real sentences with authentic Chinese translations — colloquial, natural, and context-aware.</p>
+    </div>
+    <div class="card">
+      <div class="icon">🤖</div>
+      <h3>AI-agent friendly</h3>
+      <p>A clean, consistent schema (CSV) ready to train prompts, fine-tune models, or power flashcards.</p>
+    </div>
+    <div class="card">
+      <div class="icon">📚</div>
+      <h3>Learning-focused</h3>
+      <p>343 distinct nominals across everyday speech and literary prose — a compact atlas of expression.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS — the four-step pipeline, read left to right. -->
+<section id="how">
+  <div class="eyebrow">How it works</div>
+  <h2>From noun to verb</h2>
+  <p class="lead">Every entry follows the same simple shape: read the sentence, spot the nominal, see it become a verb.</p>
+  <div class="pipeline">
+    <div class="step"><b>📖 English sentence</b><small>Authentic, in context</small></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>🗂️ Nominal</b><small>The noun being mapped</small></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>🀄 Chinese translation</b><small>Natural, human-sounding</small></div>
+    <div class="arrow">→</div>
+    <div class="step"><b>⚡ Chinese verb</b><small>The nominal’s verbal twin</small></div>
+  </div>
+</section>
+
+<!-- SAMPLES — a handful of real rows from the CSV.
+     Columns: English sentence | Chinese translation | English_Nominal | Chinese_Verb.
+     Keep these examples in sync with NVAtlas-AI-Agent.csv if the data changes. -->
+<section id="samples">
+  <div class="eyebrow">Samples</div>
+  <h2>A quick look at the data</h2>
+  <div class="example">
+    <table>
+      <thead>
+        <tr>
+          <th>English sentence</th>
+          <th>Chinese translation</th>
+          <th>Nominal</th>
+          <th>Verb</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="en">“I was gonna ask you the same question.”</td>
+          <td class="zh">我还想问你呢</td>
+          <td class="nom">question</td>
+          <td><span class="verb">问</span></td>
+        </tr>
+        <tr>
+          <td class="en">“What is his obsession with you?”</td>
+          <td class="zh">他咋对你这么痴迷？</td>
+          <td class="nom">obsession</td>
+          <td><span class="verb">痴迷</span></td>
+        </tr>
+        <tr>
+          <td class="en">“Cyrus sweeps on to Babylon's destruction.”</td>
+          <td class="zh">居鲁士席卷而来，他要毁灭巴比伦</td>
+          <td class="nom">destruction</td>
+          <td><span class="verb">毁灭</span></td>
+        </tr>
+        <tr>
+          <td class="en">“He's going to get an indictment, he says.”</td>
+          <td class="zh">他说准备起诉</td>
+          <td class="nom">indictment</td>
+          <td><span class="verb">起诉</span></td>
+        </tr>
+        <tr>
+          <td class="en">“…this demonstration has to be completely dark.”</td>
+          <td class="zh">这次展示必须在全黑的环境中进行</td>
+          <td class="nom">demonstration</td>
+          <td><span class="verb">展示</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- SCHEMA — the five columns of NVAtlas-AI-Agent.csv. -->
+<section id="data">
+  <div class="eyebrow">Schema</div>
+  <h2>One clean table</h2>
+  <p class="lead">The dataset ships as a single CSV — <code>NVAtlas-AI-Agent.csv</code> — with a schema that both humans and machines can read at a glance.</p>
+  <div class="cards">
+    <div class="card"><h3>id</h3><p>Unique row identifier</p></div>
+    <div class="card"><h3>English</h3><p>Source sentence</p></div>
+    <div class="card"><h3>Chinese</h3><p>Human translation</p></div>
+    <div class="card"><h3>English_Nominal</h3><p>Target noun</p></div>
+    <div class="card"><h3>Chinese_Verb</h3><p>Its verb form</p></div>
+  </div>
+</section>
+
+<!-- CALL TO ACTION — link out to the GitHub repository. -->
+<section class="cta">
+  <h2>Ready to explore the atlas?</h2>
+  <p>Pull the repo, grab <code>NVAtlas-AI-Agent.csv</code>, and start mapping nouns to verbs.</p>
+  <a class="btn" href="https://github.com/snowlet/nvatlas-test-2" target="_blank" rel="noopener">View on GitHub ↗</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p><strong>NV Atlas</strong> — Nominals to Verbs · English ⇄ 中文</p>
+</footer>
+
+</body>
+</html>
